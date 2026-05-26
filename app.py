@@ -1,7 +1,7 @@
 import os
 import platform
 import subprocess
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, send_from_directory
 import docx
 import shutil
 
@@ -83,9 +83,13 @@ def index():
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.json
-    name = data.get("name", "N. Akshit Vinay")
-    pid = data.get("pid", "25MSRSGIS001")
-    course = data.get("course", "M.Sc. GIS & Remote Sensing")
+    name = data.get("name", "").strip()
+    pid = data.get("pid", "").strip()
+    course = data.get("course", "").strip()
+    
+    # Server-side validation
+    if not name or not pid or not course:
+        return jsonify({"error": "All fields (Name, PID, Program) are required."}), 400
     
     # Create safe filename prefix
     safe_name = "".join([c if c.isalnum() else "_" for c in name]).strip("_")

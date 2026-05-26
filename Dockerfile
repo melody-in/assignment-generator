@@ -11,25 +11,15 @@ RUN apt-get update && \
     libreoffice-common \
     default-jre \
     fonts-opensymbol \
-    hyphen-fr \
-    hyphen-de \
     hyphen-en-us \
-    hyphen-it \
-    hyphen-ru \
     fonts-dejavu \
     fonts-dejavu-core \
     fonts-dejavu-extra \
     fonts-droid-fallback \
-    fonts-dustin \
-    fonts-f500 \
-    fonts-fanwood \
     fonts-freefont-ttf \
     fonts-liberation \
     fonts-lmodern \
-    fonts-lyx \
-    fonts-sil-gentium \
     fonts-texgyre \
-    fonts-tlwg-purisa \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -49,4 +39,4 @@ EXPOSE 5000
 ENV PORT=5000
 
 # Run the application with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "120", "app:app"]
