@@ -6,7 +6,6 @@ base_dir = r"c:\Users\akshi\Desktop\stats assignment"
 html_path = os.path.join(base_dir, "templates", "index.html")
 logo_path = os.path.join(base_dir, "shuats_logo.png")
 
-# Read logo base64
 with open(logo_path, "rb") as f:
     b64_logo = base64.b64encode(f.read()).decode('utf-8')
 logo_data_uri = f"data:image/png;base64,{b64_logo}"
@@ -14,94 +13,159 @@ logo_data_uri = f"data:image/png;base64,{b64_logo}"
 with open(html_path, "r", encoding="utf-8") as f:
     html = f.read()
 
-# 1. Update CSS for print and dark text
+# Update CSS for strict A4 printing, page borders, and avoiding page breaks inside elements
 css_updates = """
   /* Document preview styles */
   #doc-preview {
     padding: 0;
-    background: #fff;
+    background: #e5e7eb;
     font-family: 'Playfair Display', 'Georgia', serif;
     color: #000;
   }
 
   .doc-page {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 40px 60px;
-    min-height: 100vh;
+    max-width: 210mm; /* A4 width */
+    margin: 0 auto 40px;
+    padding: 20mm;
     background: white;
     position: relative;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    border: 2px solid #000; /* Page Border */
     page-break-after: always;
     break-after: page;
   }
 
-  .page-break {
-    page-break-before: always;
-    break-before: page;
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 10mm; /* Let browser handle outer margin */
+    }
+    
+    body {
+      background: #fff;
+    }
+
+    #doc-preview {
+      background: #fff;
+      padding: 0;
+    }
+
+    .doc-page {
+      margin: 0;
+      box-shadow: none;
+      width: 100%;
+      max-width: 100%;
+      border: 3px solid #000; /* Thicker page border for print */
+      padding: 15mm;
+      height: auto;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    /* Prevent breaking inside critical elements */
+    h1, h2, h3, h4, .topic-banner, .section-heading, table, .formula-box, .note-box, .cover-submitted-section, .doc-list {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
   }
 
-  /* Cover page */
-  .cover-page {
-    min-height: 100vh;
+  /* Typography Colors - Strictly Dark */
+  h1, h2, h3, h4, .section-heading, .sub-heading, .body-text, td, th {
+    color: #000 !important;
+  }
+  
+  .topic-banner {
+    background: #f4f4f5;
+    color: #000;
+    padding: 24px 30px;
+    border-radius: 8px;
+    border: 2px solid #000;
+    margin-bottom: 30px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    page-break-inside: avoid;
+  }
+
+  .topic-banner-left h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    color: #000;
+    margin: 0;
+  }
+
+  .topic-banner-right {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: #000;
+    font-weight: bold;
+  }
+
+  /* Cover page specific */
+  .cover-page {
     text-align: center;
+    padding: 20mm;
     background: white;
     color: #000;
-    padding: 60px 40px;
     position: relative;
+    border: 3px solid #000;
+    box-sizing: border-box;
     page-break-after: always;
     break-after: page;
+    height: 100%;
+  }
+
+  @media print {
+    .cover-page {
+      border: 3px solid #000;
+      padding: 15mm;
+      height: 100%;
+    }
   }
 
   .cover-institution {
     font-family: 'Libre Baskerville', serif;
-    font-size: 14px;
-    letter-spacing: 0.25em;
+    font-size: 16px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #000;
-    margin-bottom: 12px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 800;
   }
 
   .cover-institution-sub {
     font-family: 'Libre Baskerville', serif;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: #333;
-    margin-bottom: 32px;
+    font-size: 12px;
+    color: #000;
+    margin-bottom: 30px;
+    font-weight: bold;
   }
 
   .cover-program-tag {
     display: inline-block;
     padding: 8px 22px;
-    border: 1px solid #000;
-    border-radius: 30px;
-    font-size: 12px;
-    letter-spacing: 0.15em;
+    border: 2px solid #000;
+    font-size: 14px;
     color: #000;
     margin-bottom: 12px;
-    font-family: 'Libre Baskerville', serif;
     font-weight: bold;
   }
 
   .cover-course-tag {
     display: inline-block;
     padding: 6px 18px;
-    border: 1px solid #333;
-    border-radius: 30px;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: #222;
+    border: 2px solid #000;
+    font-size: 13px;
+    color: #000;
     margin-bottom: 24px;
-    font-family: 'Libre Baskerville', serif;
+    font-weight: bold;
   }
 
   .cover-main-title {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-size: 2.8rem;
     line-height: 1.15;
     margin-bottom: 8px;
     color: #000;
@@ -110,14 +174,14 @@ css_updates = """
   .cover-sub-title {
     font-family: 'DM Serif Display', serif;
     font-style: italic;
-    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
-    color: #222;
+    font-size: 1.6rem;
+    color: #000;
     margin-bottom: 40px;
   }
 
   .cover-divider {
-    width: 120px;
-    height: 2px;
+    width: 100px;
+    height: 3px;
     background: #000;
     margin: 0 auto 40px;
   }
@@ -125,114 +189,55 @@ css_updates = """
   .cover-submitted-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px 60px;
+    gap: 20px 40px;
     text-align: left;
     max-width: 600px;
-    margin: 0 auto 32px;
+    margin: 0 auto;
+    page-break-inside: avoid;
   }
 
   .cover-submitted-block .block-title {
-    font-size: 11px;
-    letter-spacing: 0.2em;
+    font-size: 13px;
     text-transform: uppercase;
     color: #000;
-    font-family: 'Libre Baskerville', serif;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #000;
-    padding-bottom: 6px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 4px;
+    font-weight: 900;
   }
 
   .cover-submitted-block .block-line {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #000;
-    line-height: 1.8;
+    line-height: 1.6;
+    font-weight: bold;
   }
 
   .cover-submitted-block .block-line.sub {
-    font-size: 0.9rem;
-    color: #333;
-  }
-"""
-
-html = re.sub(r'/\* Document preview styles \*/.*?/\* TOC page \*/', css_updates + "\n  /* TOC page */", html, flags=re.DOTALL)
-
-# Update Banner colors
-banner_updates = """
-  .topic-banner {
-    background: #f4f4f5;
+    font-size: 1rem;
     color: #000;
-    padding: 32px 40px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    margin: 0 -60px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
+    font-weight: normal;
   }
 
-  .topic-banner-left .tag {
-    font-size: 9px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: #555;
-    font-family: 'Libre Baskerville', serif;
-    margin-bottom: 8px;
-  }
-
-  .topic-banner-left h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.8rem;
-    line-height: 1.2;
-    color: #000;
-  }
-
-  .topic-banner-right {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2.5rem;
-    color: #888;
-    position: relative;
-    z-index: 1;
-  }
-"""
-html = re.sub(r'\.topic-banner \{.*?\.section-heading \{', banner_updates + "\n  .section-heading {", html, flags=re.DOTALL)
-
-# Update the end page to be minimal
-end_page_updates = """
   /* The End page */
   .end-page {
-    min-height: 40vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     text-align: center;
     padding: 60px 40px;
     background: white;
-    position: relative;
+    color: #000;
   }
-
   .end-title {
-    font-family: 'DM Serif Display', serif;
     font-size: 2.5rem;
     color: #000;
     margin-bottom: 24px;
-  }
-
-  .end-sig {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: #333;
-    letter-spacing: 0.04em;
+    font-weight: bold;
   }
 """
-html = re.sub(r'/\* The End page \*/.*?/\* Status \*/', end_page_updates + "\n  /* Status */", html, flags=re.DOTALL)
 
+# Apply CSS updates. We replace everything between /* Document preview styles */ and /* Status */
+html = re.sub(r'/\* Document preview styles \*/.*?/\* Status \*/', css_updates + "\n  /* Status */", html, flags=re.DOTALL)
 
-# Now update the JS generation logic (buildPreview function)
+# Re-write the buildPreview function. Note the removal of the Summaries as requested.
 js_logic = """
 function buildPreview(name, pid, prog, batch, ts, seed) {
   pid_val = pid;
@@ -241,7 +246,7 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
   const html = `
 <div id="doc-preview-inner">
   <!-- COVER PAGE -->
-  <div class="cover-page">
+  <div class="doc-page cover-page">
     <div class="cover-content">
       <div class="cover-institution">SAM HIGGINBOTTOM UNIVERSITY OF AGRICULTURE, TECHNOLOGY AND SCIENCES</div>
       <div class="cover-institution-sub">SHUATS, Prayagraj - 211007, Uttar Pradesh, India</div>
@@ -282,23 +287,22 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
       ${tocEntry('h2','1.1','Spatial Autocorrelation — Definition &amp; Types','1')}
       ${tocEntry('h2','1.2','Moran\\'s I — The Core Measure','2')}
       ${tocEntry('h2','1.3','Getis-Ord Gi* — Local Hotspot Analysis','3')}
-      ${tocEntry('h2','1.4','Summary — Topic 1 Key Points','3')}
+      
       ${tocEntry('h1','TOPIC 2','Point Pattern Analysis &amp; Hotspot Detection','4')}
       ${tocEntry('h2','2.1','Point Pattern Analysis — Definition &amp; Types','4')}
       ${tocEntry('h2','2.2','Method 1: Nearest Neighbour Analysis (NNA)','5')}
       ${tocEntry('h2','2.3','Method 2: Ripley\\'s K Function','5')}
       ${tocEntry('h2','2.4','Hotspot Detection — Kernel Density Estimation','6')}
       ${tocEntry('h2','2.5','Complete Workflow in GIS','6')}
-      ${tocEntry('h2','2.6','Summary — Topic 2 Key Points','6')}
     </div>
   </div>
 
   <!-- PAGE 1: TOPIC 1 -->
-  <div class="doc-page page-break">
+  <div class="doc-page">
     <div class="content-page">
       <div class="topic-banner">
         <div class="topic-banner-left">
-          <div class="tag">MAS 744 — Geospatial Statistics- II</div>
+          <div class="tag" style="font-weight: bold; margin-bottom: 5px;">MAS 744 — Geospatial Statistics- II</div>
           <h2>SPATIAL AUTOCORRELATION</h2>
         </div>
         <div class="topic-banner-right">01</div>
@@ -330,7 +334,7 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
   </div>
 
   <!-- PAGE 2: Moran's I -->
-  <div class="doc-page page-break">
+  <div class="doc-page">
     <div class="content-page">
       <div class="section-heading"><span class="snum">1.2</span> Moran's I — The Core Measure</div>
       <div class="sub-heading">Definition</div>
@@ -368,7 +372,7 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
   </div>
 
   <!-- PAGE 3: Getis-Ord -->
-  <div class="doc-page page-break">
+  <div class="doc-page">
     <div class="content-page">
       <div class="section-heading"><span class="snum">1.3</span> Getis-Ord Gi* — Local Hotspot Analysis</div>
       <div class="sub-heading">Definition</div>
@@ -401,26 +405,16 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
         <tr><td>Output</td><td>Single index value</td><td>Z-score and p-value per location</td></tr>
         <tr><td>Purpose</td><td>Detects IF clustering exists</td><td>Detects WHERE hotspots/coldspots are</td></tr>
       </table>
-
-      <div class="sub-heading">Summary — Topic 1 Key Points</div>
-      <ul class="doc-list">
-        <li>Spatial autocorrelation measures similarity between neighboring locations based on Tobler's First Law.</li>
-        <li>Positive autocorrelation = clustering; Negative = dispersion; Zero = random.</li>
-        <li>Moran's I is a GLOBAL statistic ranging from -1 to +1. High positive = strong clustering.</li>
-        <li>Statistical significance is checked using Z-score and p-value (p &lt; 0.05 = significant).</li>
-        <li>Gi* is a LOCAL statistic identifying exact hotspot and coldspot locations per feature.</li>
-        <li>Confidence levels: 90%, 95%, 99% — higher = stronger evidence of clustering.</li>
-      </ul>
     </div>
     ${footerHtml(name,pid,ts,3,course)}
   </div>
 
   <!-- PAGE 4: TOPIC 2 -->
-  <div class="doc-page page-break">
+  <div class="doc-page">
     <div class="content-page">
       <div class="topic-banner">
         <div class="topic-banner-left">
-          <div class="tag">MAS 744 — Geospatial Statistics- II</div>
+          <div class="tag" style="font-weight: bold; margin-bottom: 5px;">MAS 744 — Geospatial Statistics- II</div>
           <h2>POINT PATTERN ANALYSIS</h2>
         </div>
         <div class="topic-banner-right">02</div>
@@ -444,7 +438,7 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
   </div>
 
   <!-- PAGE 5: NNA & Ripley -->
-  <div class="doc-page page-break">
+  <div class="doc-page">
     <div class="content-page">
       <div class="section-heading"><span class="snum">2.2</span> Method 1: Nearest Neighbour Analysis (NNA)</div>
       <div class="body-text">NNA measures the average distance from each point to its nearest neighboring point and compares this to the expected distance under CSR (Complete Spatial Randomness).</div>
@@ -478,7 +472,7 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
   </div>
 
   <!-- PAGE 6: KDE & Conclusion -->
-  <div class="doc-page page-break">
+  <div class="doc-page">
     <div class="content-page">
       <div class="section-heading"><span class="snum">2.4</span> Kernel Density Estimation (KDE)</div>
       <div class="body-text">KDE creates a continuous smooth density surface (raster) from point data, showing where points are most densely concentrated. Each point spreads as a smooth 'kernel' (bell-shaped) and contributions are summed at every location to create a density map. Widely used in crime analysis, wildlife ecology, accident mapping, and disease surveillance.</div>
@@ -500,20 +494,12 @@ function buildPreview(name, pid, prog, batch, ts, seed) {
         <li><strong>Apply Ripley's K:</strong> Multi-scale analysis — see at which distances clustering occurs.</li>
         <li><strong>Run KDE:</strong> Create visual density surface (raster) showing hotspot zones.</li>
       </ul>
-
-      <div class="sub-heading">Summary — Topic 2 Key Points</div>
-      <ul class="doc-list">
-        <li>Point Pattern Analysis examines if distributions are Random, Clustered, or Dispersed.</li>
-        <li>NNA: NNR &lt; 1 = Clustered; NNR = 1 = Random; NNR &gt; 1 = Dispersed.</li>
-        <li>Ripley's K is multi-scale: L(r) &gt; 0 = clustering; L(r) &lt; 0 = dispersion at distance r.</li>
-        <li>KDE creates smooth density surface; bandwidth (h) is the critical parameter.</li>
-      </ul>
     </div>
     ${footerHtml(name,pid,ts,6,course)}
   </div>
 
   <!-- THE END PAGE -->
-  <div class="doc-page page-break">
+  <div class="doc-page">
     <div class="end-page">
       <div class="end-title">— <em>The End</em> —</div>
       <div class="end-sig">
