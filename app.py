@@ -9,37 +9,26 @@ app = Flask(__name__)
 
 # Ensure absolute paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATE_FILE = os.path.join(BASE_DIR, "demo_assign.docx")
+TEMPLATE_FILE = os.path.join(BASE_DIR, "Spatial_Autocorrelation_Enhanced.docx")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def replace_text_in_doc(doc_path, output_path, replacements):
     doc = docx.Document(doc_path)
     
-    # Replace in paragraphs
-    for p in doc.paragraphs:
-        for search_text, replace_text in replacements.items():
-            if search_text in p.text:
-                inline = p.runs
-                for i in range(len(inline)):
-                    if search_text in inline[i].text:
-                        inline[i].text = inline[i].text.replace(search_text, replace_text)
-                if search_text in p.text:
-                    p.text = p.text.replace(search_text, replace_text)
-
-    # Replace in tables
-    for t in doc.tables:
-        for r in t.rows:
+    # Only replace in the first table (cover page details) to preserve the rest of the document formatting
+    if len(doc.tables) > 0:
+        table = doc.tables[0]
+        for r in table.rows:
             for c in r.cells:
                 for p in c.paragraphs:
                     for search_text, replace_text in replacements.items():
                         if search_text in p.text:
-                            inline = p.runs
-                            for i in range(len(inline)):
-                                if search_text in inline[i].text:
-                                    inline[i].text = inline[i].text.replace(search_text, replace_text)
-                            if search_text in p.text:
-                                p.text = p.text.replace(search_text, replace_text)
+                            # To handle text split across runs without losing paragraph structure,
+                            # we recreate the paragraph text.
+                            new_text = p.text.replace(search_text, replace_text)
+                            p.clear()
+                            p.add_run(new_text)
                                 
     doc.save(output_path)
 
